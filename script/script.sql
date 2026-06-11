@@ -6,7 +6,8 @@ create table tbl_admin (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nome_usuario VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    senha VARCHAR(255) NOT NULL
+    senha VARCHAR(255) NOT NULL,
+    jwt VARCHAR(255) NOT NULL
 );
 
 create table tbl_produto (
@@ -44,6 +45,3 @@ create table tbl_imagem (
     FOREIGN KEY (id_produto)
     REFERENCES tbl_produto (id)
 );
-
-select * from tbl_produto;
-
