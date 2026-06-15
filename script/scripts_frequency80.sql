@@ -144,7 +144,7 @@ insert into tbl_produto (nome, descricao, preco
                     from tbl_admin order by id desc;
 
       #buscar admin por id
-      #model -> sql = `call procSelectAdminById(admin.id)`
+      #model -> sql = `call procSelectAdminById('${admin.id}')`
       delimiter $$
         create procedure procSelectAdmById (in id int)
           begin
@@ -189,14 +189,26 @@ insert into tbl_produto (nome, descricao, preco
                 categoria
         );
       END $$
-    
+	#inserir nova categoria na tabela intermediária
+    delimiter $$
+      create trigger tgrInsertCategoria
+		before insert on tbl_categoria
+			for each row
+				begin
+					insert into tbl_produto_categoria (
+                    id_categoria
+                    )values(
+                    tbl_categoria.id
+                    );
+	end $$
+                
 #listar todos as categorias cadastradas
       #model -> sql = `select * from vwCategoria`
         create view vwCategoria  as
           select * from tbl_categoria order by id desc;
     
 #buscar categoria por id
-#model -> sql = `call procSelectCategoriaById(admin.id)`
+#model -> sql = `call procSelectCategoriaById('${categoria.id}')`
 delimiter $$
   create procedure procSelectCategoriaById (in id int)
     begin
@@ -210,8 +222,16 @@ delimiter $$
           begin
                 update tbl_categoria set
                                         tbl_categoria.categoria = new.categoria
-                          where id = tbl_produto.id;
+                          where id = tbl_categoria.id;
           end $$
+          
+		create trigger tgrUpdateCategoriaById
+			before update on tbl_categoria
+				for each row
+					begin
+						update tbl_produto_categoria set 
+							id_categoria = tbl_categoria.id;
+					end $$
 
 #deletar categoria por id
 #model -> sql = `call procDeleteCategoriaById('${categoria.id}')`
@@ -220,12 +240,81 @@ delimiter $$
         begin
           delete from tbl_categoria where tbl_categoria.id = id;
         end$$
-      
-#trigger da tabela intermediária
-      delimiter $$
+        
+	  delimiter $$
       create trigger tgrDeleteCategoriaById
       before delete on tbl_categoria
         for each row
           begin 
-            delete from tbl_produto_categoria where id_categoria = old.id_categoria
-          end$$
+            delete from tbl_produto_categoria where id_categoria = old.id_categoria;
+          end $$
+          
+          #------------------------------------------------------produto-------------------------------------------------------------
+
+#inserir novo produto
+      #model -> sql = `call procInsertProduto('${produto.nome}','${produto.descricao}', '${produto.preco}')`
+      delimiter $$
+        create procedure procInsertProduto(IN nome varchar(100), descricao text, preco decimal(5,2))
+          BEGIN
+            insert into tbl_produto(
+                tbl_produto.nome,
+                tbl_produto.descricao,
+                tbl_produto.preco
+            )VALUES(
+                nome,
+                descricao,
+                preco
+        );
+      END $$
+    
+#listar todos os produtos cadastrados
+      #model -> sql = `select * from vwCategoria`
+        create view vwProduto  as
+          select * from tbl_produto order by id desc;
+    
+#buscar produto por id
+#model -> sql = `call procSelectProdutoById('${produto.id}')`
+delimiter $$
+  create procedure procSelectProdutoById (in id int)
+    begin
+      select * from tbl_produto where tbl_produto.id = id;
+end $$
+
+#atualizar produto por id
+      #model -> sql = `call procUpdateProdutoById('${produto.nome}','${produto.descricao}', '${produto.preco}')`
+      delimiter $$
+        create procedure procUpdateProdutoById(IN nome varchar(100), descricao text, preco decimal(5,2))
+          begin
+                update tbl_produto set
+                                        tbl_produto.nome = nome,
+                                        tbl_produto.descricao = descricao,
+                                        tbl_produto.preco = preco
+                                        
+                          where id = tbl_produto.id;
+          end $$
+          
+		create trigger tgrUpdateProdutoById
+			before update on tbl_produto
+				for each row
+					begin
+						update tbl_produto_categoria set 
+							id_produto = tbl_produto.id;
+					end $$
+
+#deletar produto por id
+#model -> sql = `call procDeleteProdutoById('${produto.id}')`
+      delimiter $$
+      create procedure procDeleteProdutoById(in id int)
+        begin
+          delete from tbl_produto where tbl_produto.id = id;
+        end$$
+        
+	  delimiter $$
+      create trigger tgrDeleteProdutoById
+      before delete on tbl_produto
+        for each row
+          begin 
+            delete from tbl_produto_categoria where id_produto = old.id_produto;
+          end $$
+          
+      
