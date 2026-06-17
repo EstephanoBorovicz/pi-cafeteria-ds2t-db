@@ -19,7 +19,9 @@ create table tbl_produto (
 
 create table tbl_categoria (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    categoria VARCHAR(45) NOT NULL
+    categoria VARCHAR(45) NOT NULL,
+    descricao TEXT NOT NULL,
+    imagem VARCHAR(255) NOT NULL
 );
 
 create table tbl_produto_categoria (

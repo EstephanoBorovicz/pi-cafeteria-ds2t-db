@@ -65,14 +65,18 @@
 #------------------------------------------------------categoria-------------------------------------------------------------
 
 #inserir nova categoria
-      #model -> sql = `call procInsertCategoria(${categoria})`
+      #model -> sql = `call procInsertCategoria('${categoria}','${descricao}', '${imagem}' )`
       delimiter $$
-        create procedure procInsertCategoria(IN categoria varchar(45))
+        create procedure procInsertCategoria(IN categoria varchar(45), descricao TEXT, imagem varchar(255))
           BEGIN
             insert into tbl_categoria(
-                categoria
+                categoria,
+                descricao,
+                imagem
             )VALUES(
-                categoria
+                categoria,
+                descricao,
+                imagem
         );
       END $$
 	#inserir nova categoria na tabela intermediária
@@ -102,9 +106,9 @@ delimiter $$
 	end $$
 
 #atualizar categoria por id
-      #model -> sql = `call procUpdateCategoriaById('${categoria.id}','$categoria.categoria}')`
+      #model -> sql = `call procUpdateCategoriaById('${categoria.id}','$categoria.categoria}','${descricao}', '${imagem}')`
       delimiter $$
-        create procedure procUpdateCategoriaById(in id int, categoria varchar(45))
+        create procedure procUpdateCategoriaById(IN categoria varchar(45), descricao TEXT, imagem varchar(255))
           begin
                 update tbl_categoria set
                                         tbl_categoria.categoria = new.categoria
